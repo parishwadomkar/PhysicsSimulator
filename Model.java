@@ -27,55 +27,82 @@ class Model {
 	}
 
 	void step(double deltaT) {
-		// TODO this method implements one step of simulation with a step deltaT
-		for (int i = 0; i < balls.length; i++) {
-            Ball a = balls[i];
+		for (Ball b : balls) {
 			// detect collision with the border
-			if (a.x < a.radius) {
-                a.x = a.radius;
-                a.vx *= -1;
-                // Check if the ball's x position has gone past the right boundary.
-            } else if (a.x > areaWidth - a.radius) {
-                a.x = areaWidth - a.radius;
-                a.vx *= -1;
-            }
-            if (a.y < a.radius) {
-                a.y = a.radius;
-                a.vy *= -1;
-            } else if (a.y > areaHeight - a.radius) {
-                a.y = areaHeight - a.radius;
-                a.vy *= -1;
-            }
-			
-			a.vy-=gravity*deltaT;
-			a.x += deltaT * a.vx;
-			a.y += deltaT * a.vy;
+            		// Check if the ball's x position is less than its radius (i.e., it's touching or has gone past the left boundary).
+           		if (b.x < b.radius) {
+                		b.x = b.radius;
+                		b.vx *= -1;
+                		// Check if the ball's x position has gone past the right boundary.
+            		} else if (b.x > areaWidth - b.radius) {
+               			b.x = areaWidth - b.radius;
+                		b.vx *= -1;
+            		}
+            		if (b.y < b.radius) {
+                		b.y = b.radius;
+                		b.vy *= -1;
+            		} else if (b.y > areaHeight - b.radius) {
+               			b.y = areaHeight - b.radius;
+                		b.vy *= -1;
+            		}
 
-			for (int j = i + 1; j < balls.length; j++) {
-                Ball b = balls[j];
-                double dx = a.x - b.x;
-                double dy = a.y - b.y;
-                double distance = Math.sqrt(dx * dx + dy * dy);
+			// Apply gravity
+			b.vy -= gravity * deltaT;
 
-                if (distance < a.radius + b.radius) {
-                    
-                    double angle = Math.atan2(dy, dx);
-                    double velaBefore = a.vx * Math.cos(angle) + a.vy * Math.sin(angle);
-                    double velbBefore = b.vx * Math.cos(angle) + b.vy * Math.sin(angle);
+			// Compute new position according to the speed of the ball
+			b.x += deltaT * b.vx;
+			b.y += deltaT * b.vy;
 
-                    // Assuming  equal mass
-                    double velaAfter = velbBefore;
-                    double velbAfter = velaBefore;
-
-                    // Update velocities
-                    a.vx += (velaAfter - velaBefore) * Math.cos(angle);
-                    a.vy += (velaAfter - velaBefore) * Math.sin(angle);
-                    b.vx += (velbAfter - velbBefore) * Math.cos(angle);
-                    b.vy += (velbAfter - velbBefore) * Math.sin(angle);
-                }
-            }
+			// Handle Collisions between Balls
+			for (int i = 0; i < balls.length; i++) {
+				for (int j = i + 1; j < balls.length; j++) {
+					Ball b1 = balls[i];
+					Ball b2 = balls[j];
+	
+					// For Vector from the center of ball 1 to the center of ball 2
+					double dx = b2.x - b1.x;
+					double dy = b2.y - b1.y;
+	
+					// For distance between the centers of the two balls
+					double distance = Math.sqrt(dx * dx + dy * dy);
+	
+					// Check if the balls are colliding (if distance is less than the sum of their radii)
+					if (distance < b1.radius + b2.radius) {
+						// Collision has occurred -response
+						// Calculate the normal vector of the collision
+						double normalX = dx / distance;
+						double normalY = dy / distance;
+	
+						// Calculate the relative velocity of the two balls before the collision
+						double relativeVx = b1.vx - b2.vx;
+						double relativeVy = b1.vy - b2.vy;
+	
+						// Calculate the relative velocity along the normal vector
+						double relativeVelocity = relativeVx * normalX + relativeVy * normalY;
+	
+						// Calculate the impulse (change in momentum)
+						double impulse = (2.0 * relativeVelocity) / (1.0 / b1.radius + 1.0 / b2.radius);
+	
+						// Update the velocities of both balls
+						b1.vx -= impulse / b1.radius * normalX;
+						b1.vy -= impulse / b1.radius * normalY;
+						b2.vx += impulse / b2.radius * normalX;
+						b2.vy += impulse / b2.radius * normalY;
+	
+						// Ensure the balls don't overlap
+						double overlap = b1.radius + b2.radius - distance;
+						double moveX = normalX * overlap / 2.0;
+						double moveY = normalY * overlap / 2.0;
+						b1.x -= moveX;
+						b1.y -= moveY;
+						b2.x += moveX;
+						b2.y += moveY;
+					}
+				}
+			}
 		}
 	}
+
 	
 	/**
 	 * Simple inner class describing balls.
