@@ -25,4 +25,4 @@ You can adjust the simulation parameters, such as the number of balls, their ini
 Contributions and improvements to the code are welcome. If you have ideas for enhancing the simulation or fixing any issues, please feel free to fork the repository, make your changes, and submit a pull request.
 
 ## Acknowledgments
-The simulation was created as part of an exercise, in collaboration with [DSkretting](https://github.com/DSkretting) and [nnoor96](https://github.com/nnoor96) and is inspired by physics-based simulations commonly used in computer graphics and game development.
+The simulation was created as part of an exercise, in collaboration with [DSkretting](https://github.com/DSkretting) and [nnoor96](https://github.com/nnoor96) and is inspired by physics-based simulations.
